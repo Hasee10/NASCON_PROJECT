@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NASCON Event Management Dashboard</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --secondary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            --purple: #6c5ce7;
+            --light-purple: #a29bfe;
+            --white: #ffffff;
+            --light-bg: #f5f7fa;
+            --dark-text: #2d3436;
+            --danger: #d63031;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+            --btn-gradient: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            --btn-hover-gradient: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--primary-gradient);
+            background-image: url('NS_DASHBOARD_LOGO.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(108, 92, 231, 0.95);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s ease;
+        }
+
+        .sidebar h2 {
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .sidebar h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--secondary-gradient);
+            border-radius: 2px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            background: rgba(162, 155, 254, 0.2);
+            margin-bottom: 15px;
+            padding: 14px;
+            text-align: center;
+            border-radius: 10px;
+            color: var(--white);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar ul li a {
+            color: var(--white);
+            font-weight: 700;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar ul li.active, .sidebar ul li:hover {
+            background: var(--white);
+            color: var(--purple);
+            box-shadow: var(--hover-shadow);
+            transform: none;
+        }
+
+        .sidebar ul li.active a, .sidebar ul li:hover a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .topbar:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-2px);
+        }
+
+        .topbar span {
+            font-weight: 500;
+            margin-right: 15px;
+            color: var(--purple);
+        }
+
+        .topbar button {
+            background: var(--btn-gradient);
+            color: var(--white);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .topbar button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .topbar button:hover {
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .topbar button:hover::before {
+            left: 100%;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: var(--purple);
+            font-size: 18px;
+        }
+
+        .card p {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover p {
+            color: var(--purple);
+            transform: scale(1.1);
+        }
+
+        .event-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .event-content {
+            padding: 20px;
+        }
+
+        .event-title {
+            color: var(--purple);
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .event-description {
+            color: var(--dark-text);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .event-date {
+            color: var(--purple);
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .inventory-alert {
+            background: rgba(255, 255, 255, 0.95);
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .inventory-alert:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-2px);
+        }
+
+        .inventory-alert h2 {
+            color: var(--danger);
+            font-size: 22px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .inventory-alert h2::before {
+            content: "⚠️";
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .inventory-alert ul {
+            margin-top: 10px;
+            list-style-type: disc;
+            padding-left: 20px;
+            color: var(--dark-text);
+        }
+
+        .inventory-alert ul li {
+            margin-bottom: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .inventory-alert ul li:hover {
+            color: var(--purple);
+            transform: translateX(5px);
+        }
+
+        .floating {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(100px, 100px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body> 
+    <div class="floating" style="top: 10%; left: 10%;"></div>
+    <div class="floating" style="top: 20%; right: 15%; animation-delay: -5s;"></div>
+    <div class="floating" style="bottom: 15%; left: 20%; animation-delay: -10s;"></div>
+
+    <div class="sidebar">
+      <h2>NASCON 2025🎪</h2>
+        <ul>
+            <li class="active"><a href="/">Dashboard</a></li>
+            <li><a href="/NS_events">Events</a></li>
+            <li><a href="/NS_Participant">Participants</a></li>
+            <li><a href="/NS_Judge">Judges</a></li>
+            <li><a href="/NS_Spns">Sponsorships</a></li>
+            <li><a href="/NS_ACC">Accommodation</a></li>
+            <li><a href="/NS_finance">Finance</a></li>
+            <li><a href="/NS_Reg">Registration</a></li>            
+            <li><a href="/NS_Reports">Reports</a></li>            
+        </ul>
+    </div>      
+
+    <div class="main-content">
+      <div class="topbar">
+        <div class="left-space">
+            <span style="font-size: 20px;">🏆</span>
+        </div>
+        <div class="greeting">
+            ✨ Hello, <strong>Partner</strong> ✨
+        </div>
+        <button onclick="logout()">LOGOUT 🚀</button>
+    </div>
+    
+    <style>
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px 20px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .left-space {
+      margin-right: 15px; 
+    }
+    
+    .greeting {
+      font-size: 18px;
+      color: #6a11cb;
+      font-weight: 500;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+      border: none;
+      padding: 8px 18px;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      transform: scale(1.05);
+    }
+    </style>
+      
+      
+        <div class="cards">
+            <div class="card">
+                <h3>Registered Participants</h3>
+                <p id="participantsCount">0</p>
+            </div>
+            <div class="card">
+                <h3>Active Events</h3>
+                <p id="eventsCount">0</p>
+            </div>
+            <div class="card">
+                <h3>Available Rooms</h3>
+                <p id="roomsCount">0</p>
+            </div>
+            <div class="card">
+                <h3>Inventory Alerts</h3>
+                <p id="inventoryAlerts">0</p>
+            </div>
+        </div>
+
+        <div class="event-cards">
+            <div class="event-card">
+                <img src="sm_logo_2.jpg" alt="Sports Event" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">Annual Sports Festival</h3>
+                    <p class="event-description">Join us for a week of competitive sports including cricket, football, and basketball tournaments.</p>
+                    <p class="event-date">Date: March 15-20, 2025</p>
+                </div>
+            </div>
+
+            <div class="event-card">
+                <img src="sm_logo_1.jpeg" alt="Coding Competition" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">Code Jail</h3>
+                    <p class="event-description">Annual coding competition featuring algorithmic challenges and real-world problem-solving.</p>
+                    <p class="event-date">Date: April 5-6, 2025</p>
+                </div>
+            </div>
+
+            <div class="event-card">
+                <img src="sm_logo_3.png" alt="Hackathon" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">InnovateHack 2025</h3>
+                    <p class="event-description">48-hour hackathon focusing on innovative solutions for real-world problems.</p>
+                    <p class="event-date">Date: May 10-12, 2025</p>
+                </div>
+            </div>
+
+            <div class="event-card">
+              <img src="sm_logo_4.jpg" alt="Singing" class="event-image">
+              <div class="event-content">
+                  <h3 class="event-title">Singing Competition</h3>
+                  <p class="event-description">Battle of the voices in a nurturing environment.</p>
+                  <p class="event-date">Date: May 10-12, 2025</p>
+              </div>
+            </div>  
+
+
+            <div class="event-card">
+                <img src="/sm_logo_14.png" alt="Tech Talk" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">TechTalks 2025</h3>
+                    <p class="event-description">A seminar series featuring industry leaders discussing AI, blockchain, and the future of technology.</p>
+                    <p class="event-date">Date: March 25, 2025</p>
+                </div>
+            </div>
+            
+            <div class="event-card">
+                <img src="/sm_logo_15.png" alt="Art Gala" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">Creative Canvas</h3>
+                    <p class="event-description">An exhibition and competition for young artists to showcase their creativity through paintings, sketches, and digital art.</p>
+                    <p class="event-date">Date: April 2-4, 2025</p>
+                </div>
+            </div>
+            
+            <div class="event-card">
+                <img src="/sm_logo_16.jpeg" alt="Gaming Event" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">BattleGrounds LAN Party</h3>
+                    <p class="event-description">A 24-hour gaming marathon featuring CS:GO, Valorant, and FIFA with exciting prizes for winners.</p>
+                    <p class="event-date">Date: April 20, 2025</p>
+                </div>
+            </div>
+            
+            <div class="event-card">
+                <img src="/sm_logo_17.jpeg" alt="Drama Event" class="event-image">
+                <div class="event-content">
+                    <h3 class="event-title">Dramarama</h3>
+                    <p class="event-description">Experience powerful student performances in a theatrical celebration of creativity and expression.</p>
+                    <p class="event-date">Date: May 1, 2025</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="inventory-alert">
+            <h2>Low Inventory Items</h2>
+            <ul id="lowInventoryList">
+            </ul>
+        </div>
+    </div>
+
+    <script>      
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.innerText = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        setTimeout(() => {
+            animateValue(document.getElementById("participantsCount"), 0, 320, 1000);
+            animateValue(document.getElementById("eventsCount"), 0, 45, 1000);
+            animateValue(document.getElementById("roomsCount"), 0, 18, 1000);
+            document.getElementById("inventoryAlerts").innerText = "2 Low Items";
+        }, 500);
+
+        const inventoryItems = [
+            "Badges - Only 30 left",
+            "Gift Bags - Only 10 left"
+        ];
+
+        const lowInventoryList = document.getElementById("lowInventoryList");
+        inventoryItems.forEach((item, index) => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            li.style.opacity = '0';
+            li.style.transform = 'translateX(-20px)';
+            lowInventoryList.appendChild(li);
+            
+            setTimeout(() => {
+                li.style.transition = 'all 0.3s ease';
+                li.style.opacity = '1';
+                li.style.transform = 'translateX(0)';
+            }, 1000 + (index * 200));
+        });
+
+        function createFloatingElement() {
+            const floating = document.createElement('div');
+            floating.className = 'floating';
+            floating.style.top = Math.random() * 100 + '%';
+            floating.style.left = Math.random() * 100 + '%';
+            floating.style.animationDelay = -(Math.random() * 15) + 's';
+            document.body.appendChild(floating);
+        }
+
+        for (let i = 0; i < 5; i++) {
+            createFloatingElement();
+        }
+
+        const sidebarItems = document.querySelectorAll('.sidebar ul li');
+        sidebarItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateX(5px)';
+            });
+            item.addEventListener('mouseleave', () => {
+                if (!item.classList.contains('active')) {
+                    item.style.transform = 'translateX(0)';
+                }
+            });
+        });
+        
+        function logout() {
+            const button = document.querySelector('.topbar button');
+            button.style.animation = 'pulse 0.5s ease';
+            setTimeout(() => {
+                button.style.animation = '';
+                window.location.href = "/";
+            }, 500);
+        }
+    </script>
+</body>
+</html> 
