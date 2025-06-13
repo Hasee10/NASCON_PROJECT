@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NASCON - Judge & Evaluation System</title>
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --secondary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #2d3436;
+            --btn-gradient: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            --btn-hover-gradient: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+            --purple: #6c5ce7;
+            --light-purple: #a29bfe;
+            --red: #ff6b6b;
+            --light-red: #ff8e8e;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--primary-gradient);
+            color: var(--text-color);
+            background-image: url('sm_logo_5.png');           
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            animation: fadeIn 1s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 36px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: slideDown 0.5s ease;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--secondary-gradient);
+            border-radius: 2px;
+        }
+
+        .judge-form, .leaderboard {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 1000px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            animation: slideUp 0.5s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .judge-form:hover, .leaderboard:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+
+        .judge-form h2, .leaderboard h2 {
+            margin-bottom: 20px;
+            color: var(--purple);
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .judge-form h2::after, .leaderboard h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--btn-gradient);
+            border-radius: 2px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        button {
+            background: var(--btn-gradient);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: span 2;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover {
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        th {
+            background: var(--btn-gradient);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr {
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.01);
+        }
+
+        td {
+            border-bottom: 1px solid #eee;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background: var(--white);
+            color: var(--purple);
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+            background: var(--light-purple);
+            color: var(--white);
+        }
+
+        .back-button:hover::before {
+            left: 100%;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light-purple);
+            border-top: 5px solid var(--purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .floating {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(100px, 100px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        .modal {
+        display: none; 
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-size: 18px;
+    }
+
+    #successMessage {
+        font-size: 18px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .close-btn {
+        background-color: #6c5ce7;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .close-btn:hover {
+        background-color: #5a47c1;
+    }
+
+    .modal.fadeIn {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .events-list {
+        background: var(--card-bg);
+        width: 90%;
+        max-width: 1000px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+        animation: slideUp 0.5s ease;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .events-list h2 {
+        margin-bottom: 20px;
+        color: var(--purple);
+        text-align: center;
+        font-size: 24px;
+        position: relative;
+    }
+
+    .events-list h2::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background: var(--btn-gradient);
+        border-radius: 2px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .data-table th, .data-table td {
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .data-table th {
+        background: var(--btn-gradient);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .data-table tr {
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .data-table tr:hover {
+        background: #f8f9fa;
+        transform: scale(1.01);
+    }
+
+    .data-table td {
+        border-bottom: 1px solid #eee;
+    }
+
+    </style>
+</head>
+
+<body>    
+    <div class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <div class="floating" style="top: 10%; left: 10%;"></div>
+    <div class="floating" style="top: 20%; right: 15%; animation-delay: -5s;"></div>
+    <div class="floating" style="bottom: 15%; left: 20%; animation-delay: -10s;"></div>
+
+    <h1>Judge & Evaluation</h1>
+
+    <div class="judge-form">
+        <h2>Enter Scores</h2>
+        <form id="scoreForm" action="/postJUDGE" method="POST">
+            <select id="judgeID" name="JUDGE_ID" required>
+                <option value="">Select Judge (UserID)</option>
+                <option value="2001">Judge A (UserID: 2001)</option>
+                <option value="2002">Judge B (UserID: 2002)</option>
+            </select>
+        
+            <select id="eventID" name="EVENT_ID" required>
+                <option value="">Select Event</option>
+                <option value="601">Coding Marathon (EventID: 601)</option>
+                <option value="602">Startup Pitch (EventID: 602)</option>
+            </select>
+        
+            <select id="participantID" name="PARTICIPANT_ID" required>
+                <option value="">Select Participant (UserID)</option>
+                <option value="3001">Participant 1 (UserID: 3001)</option>
+                <option value="3002">Participant 2 (UserID: 3002)</option>
+                <option value="3003">Participant 3 (UserID: 3003)</option>
+                <option value="3004">Participant 4 (UserID: 3004)</option>
+            </select>
+        
+            <input type="number" id="score" name="SCORE" placeholder="Score (out of 100)" min="0" max="100" required>
+            <button type="submit">Submit Score</button>
+        </form>
+    </div>
+
+    <div class="leaderboard">
+        <h2>Leaderboard</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Participant</th>
+                    <th>Average Score</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <h2 id="successMessage">Judge Made successfully!</h2>
+            <button class="close-btn" id="closeModalBtn">Close</button>
+        </div>
+    </div>
+
+    <div class="events-list">
+        <h2>Event Scores</h2>
+        <% if (scores && scores.length > 0) { %>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Participant Name</th>
+                        <th>Score</th>
+                        <th>Rank</th>
+                        <th>Judge ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% scores.forEach(score => { %>
+                        <tr>
+                            <td><%= score.Event_Name %></td>
+                            <td><%= score.Participant_Name %></td>
+                            <td><%= score.Score %></td>
+                            <td><%= score.Ranks !== undefined ? score.Ranks : '-' %></td>
+                            <td><%= score.Judge_ID %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No scores found.</p>
+        <% } %>
+    </div>
+
+    <a class="back-button" href="/NS_DASHBOARD">← Back to Dashboard</a>
+
+    <script>        
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading').classList.add('hidden');
+            }, 1000);
+        });
+    
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.style.transform = 'scale(1.02)';
+                input.style.borderColor = 'var(--purple)';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.style.transform = 'scale(1)';
+                input.style.borderColor = '#ddd';
+            });
+        });
+
+        const backButton = document.querySelector('.back-button');
+        backButton.addEventListener('mouseenter', () => {
+            backButton.style.transform = 'translateY(-2px)';
+        });
+        backButton.addEventListener('mouseleave', () => {
+            backButton.style.transform = 'translateY(0)';
+        });
+
+        function createFloatingElement() {
+            const floating = document.createElement('div');
+            floating.className = 'floating';
+            floating.style.top = Math.random() * 100 + '%';
+            floating.style.left = Math.random() * 100 + '%';
+            floating.style.animationDelay = -(Math.random() * 15) + 's';
+            document.body.appendChild(floating);
+        }
+
+        for (let i = 0; i < 5; i++) {
+            createFloatingElement();
+        }
+
+        <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        const modal = document.getElementById('successModal');
+        const successMessageText = document.getElementById('successMessage');
+        successMessageText.innerText = "<%= successMessage %>";
+        modal.style.display = "flex";
+        document.getElementById('closeModalBtn').onclick = function() {
+            modal.style.display = "none";
+        };
+    <% } %>
+
+    </script>
+</body>
+</html> 
