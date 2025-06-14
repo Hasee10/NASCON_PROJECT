@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NASCON - Authentication</title>
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --secondary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #2d3436;
+            --btn-gradient: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            --btn-hover-gradient: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+            --purple: #6c5ce7;
+            --light-purple: #a29bfe;
+            --red: #ff6b6b;
+            --light-red: #ff8e8e;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--primary-gradient);
+            background-image: url('/NS_LOGO.png');           
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.5s ease;
+            transition: all 0.3s ease;
+        }
+
+        .auth-container:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--purple);
+            font-size: 28px;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--secondary-gradient);
+            border-radius: 2px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        button {
+            padding: 15px;
+            background: var(--btn-gradient);
+            color: white;
+            border: none;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--purple);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .toggle-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--purple);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        .error-message {
+            color: var(--red);
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 107, 107, 0.1);
+            animation: shake 0.5s ease;
+        }
+
+        .success-message {
+            color: #00b894;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(0, 184, 148, 0.1);
+            animation: slideDown 0.5s ease;
+        }
+        
+        .floating {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(100px, 100px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            width: 100%;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        select option {
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floating" style="top: 10%; left: 10%;"></div>
+    <div class="floating" style="top: 20%; right: 15%; animation-delay: -5s;"></div>
+    <div class="floating" style="bottom: 15%; left: 20%; animation-delay: -10s;"></div>
+
+    <div class="auth-container">
+        <h2 id="formTitle">Login</h2>
+      
+        <form id="loginForm" action="/login" method="POST">
+            <input type="email" id="loginEmail" name="email" placeholder="Email" required>
+            <input type="password" id="loginPassword" name="password" placeholder="Password" required>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="showLoginPassword">
+                <label for="showLoginPassword">Show Password</label>
+            </div>
+
+            <button type="submit">Login</button>
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message"><%= error %></div>
+            <% } %>
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="success-message"><%= success %></div>
+            <% } %>
+            <div class="toggle-link" onclick="switchForm('signup')">Don't have an account? Sign Up</div>
+        </form>
+
+        <form id="signupForm" action="/signup" method="POST" style="display:none;">
+            <input type="text" id="signupUsername" name="username" placeholder="Username" required>
+            <input type="text" id="signupCNIC" name="cnic" placeholder="CNIC (e.g., 12345-1234567-1)" pattern="[0-9]{5}-[0-9]{7}-[0-9]{1}" required>
+            <input type="tel" id="signupPhone" name="phone" placeholder="Phone Number" required>
+            <input type="email" id="signupEmail" name="email" placeholder="Email" required>
+            <select id="signupRole" name="role" required>
+                <option value="">Select Role</option>
+                <option value="Participant">Participant</option>
+                <option value="Organizer">Organizer</option>
+                <option value="Judge">Judge</option>
+                <option value="Sponsor">Sponsor</option>
+            </select>
+            <input type="password" id="signupPassword" name="password" placeholder="Password" required>
+            <input type="password" id="signupConfirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="showSignupPassword">
+                <label for="showSignupPassword">Show Passwords</label>
+            </div>
+
+            <button type="submit">Sign Up</button>
+            <% if (typeof signupError !== 'undefined' && signupError) { %>
+                <div class="error-message"><%= signupError %></div>
+            <% } %>
+            <div class="toggle-link" onclick="switchForm('login')">Already have an account? Login</div>
+        </form>
+    </div>
+
+    <script>
+        function switchForm(form) {
+            const loginForm = document.getElementById("loginForm");
+            const signupForm = document.getElementById("signupForm");
+            const formTitle = document.getElementById("formTitle");
+
+            if (form === "signup") {
+                loginForm.style.opacity = "0";
+                loginForm.style.transform = "translateX(-20px)";
+                setTimeout(() => {
+                    loginForm.style.display = "none";
+                    signupForm.style.display = "flex";
+                    signupForm.style.opacity = "0";
+                    signupForm.style.transform = "translateX(20px)";
+                    formTitle.innerText = "Sign Up";
+                    setTimeout(() => {
+                        signupForm.style.opacity = "1";
+                        signupForm.style.transform = "translateX(0)";
+                    }, 50);
+                }, 300);
+            } else {
+                signupForm.style.opacity = "0";
+                signupForm.style.transform = "translateX(20px)";
+                setTimeout(() => {
+                    signupForm.style.display = "none";
+                    loginForm.style.display = "flex";
+                    loginForm.style.opacity = "0";
+                    loginForm.style.transform = "translateX(-20px)";
+                    formTitle.innerText = "Login";
+                    setTimeout(() => {
+                        loginForm.style.opacity = "1";
+                        loginForm.style.transform = "translateX(0)";
+                    }, 50);
+                }, 300);
+            }
+        }
+
+        
+        document.getElementById("showLoginPassword").addEventListener("change", function () {
+            const pwd = document.getElementById("loginPassword");
+            pwd.type = this.checked ? "text" : "password";
+        });
+
+        document.getElementById("showSignupPassword").addEventListener("change", function () {
+            const pwd1 = document.getElementById("signupPassword");
+            const pwd2 = document.getElementById("signupConfirmPassword");
+            pwd1.type = this.checked ? "text" : "password";
+            pwd2.type = this.checked ? "text" : "password";
+        });
+
+    
+        function createFloatingElement() {
+            const floating = document.createElement("div");
+            floating.className = "floating";
+            floating.style.top = Math.random() * 100 + "%";
+            floating.style.left = Math.random() * 100 + "%";
+            floating.style.animationDelay = -(Math.random() * 15) + "s";
+            document.body.appendChild(floating);
+        }
+
+        for (let i = 0; i < 5; i++) {
+            createFloatingElement();
+        }
+    </script>
+</body>
+</html> 
