@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NASCON - Reporting & Analytics</title>
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --secondary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #2d3436;
+            --btn-gradient: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            --btn-hover-gradient: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+            --purple: #6c5ce7;
+            --light-purple: #a29bfe;
+            --red: #ff6b6b;
+            --light-red: #ff8e8e;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--primary-gradient);
+            color: var(--text-color);
+            background-image: url('sm_logo_12.png');           
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            animation: fadeIn 1s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 36px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: slideDown 0.5s ease;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--secondary-gradient);
+            border-radius: 2px;
+        }
+
+        .report-form, .report-list {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 1000px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            animation: slideUp 0.5s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .report-form:hover, .report-list:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+
+        .report-form h2, .report-list h2 {
+            margin-bottom: 20px;
+            color: var(--purple);
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .report-form h2::after, .report-list h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--btn-gradient);
+            border-radius: 2px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        input, textarea, select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            grid-column: span 2;
+            resize: vertical;
+        }
+
+        button {
+            background: var(--btn-gradient);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: span 2;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .report-item {
+            background: rgba(241, 242, 246, 0.9);
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .report-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .report-item:hover::before {
+            transform: translateX(100%);
+        }
+
+        .report-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .report-item h3 {
+            margin-bottom: 12px;
+            color: var(--purple);
+            font-size: 20px;
+        }
+
+        .report-item p {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .report-item:hover p {
+            color: var(--purple);
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background: var(--white);
+            color: var(--purple);
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .back-button:hover::before {
+            left: 100%;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+            background: var(--light-purple);
+            color: var(--white);
+        }
+        
+        .floating {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(100px, 100px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        .modal {
+        display: none; 
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-size: 18px;
+    }
+
+    #successMessage {
+        font-size: 18px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .close-btn {
+        background-color: #6c5ce7;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .close-btn:hover {
+        background-color: #5a47c1;
+    }
+
+    .modal.fadeIn {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    </style>
+</head>
+
+<body>
+    <div class="floating" style="top: 10%; left: 10%;"></div>
+    <div class="floating" style="top: 20%; right: 15%; animation-delay: -5s;"></div>
+    <div class="floating" style="bottom: 15%; left: 20%; animation-delay: -10s;"></div>
+
+    <h1>Reporting & Analytics</h1>
+    
+    <div class="report-form">
+        <h2>Generate Report</h2>
+        <form id="reportForm" action="/postreports" method="POST">
+            <textarea id="content" name = "cont" placeholder="Enter Report Content..." rows="5" required></textarea>
+            <select id="reportType" name = "rept_type" required>
+                <option value="">Select Report Type</option>
+                <option value="Event Participation">Event Participation Statistics</option>
+                <option value="Venue Utilization">Venue Utilization Report</option>
+                <option value="Revenue">Revenue & Sponsorship Report</option>
+                <option value="Accommodation">Accommodation Occupancy Report</option>
+                <option value="Demographics">Participant Demographics Report</option>
+            </select>
+            <input type="date" id="dateGenerated" name = "date_Gen" required>
+            <select id="generatedBy" name="GEN_BY" required>
+                <option value="">Generated By (UserID)</option>
+                <option value="1001">Admin A</option>
+                <option value="1002">Organizer B</option>
+                <option value="1003">Organizer C</option>
+            </select>                                    
+            <button type="submit">Create Report</button>
+        </form>
+    </div>
+
+    <div class="report-list">
+        <h2>Reports</h2>
+        <div id="reportContainer">
+        </div>
+    </div>
+
+    <a class="back-button" href="/NS_DASHBOARD">← Back to Dashboard</a>
+
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div id="successMessage">Report GENRATION successfull!</div>
+            <button class="close-btn" id="closeModalBtn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.style.transform = 'scale(1.02)';
+                input.style.borderColor = 'var(--purple)';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.style.transform = 'scale(1)';
+                input.style.borderColor = '#ddd';
+            });
+        });
+
+        const backButton = document.querySelector('.back-button');
+        backButton.addEventListener('mouseenter', () => {
+            backButton.style.transform = 'translateY(-2px)';
+        });
+        backButton.addEventListener('mouseleave', () => {
+            backButton.style.transform = 'translateY(0)';
+        });
+
+        function createFloatingElement() {
+            const floating = document.createElement('div');
+            floating.className = 'floating';
+            floating.style.top = Math.random() * 100 + '%';
+            floating.style.left = Math.random() * 100 + '%';
+            floating.style.animationDelay = -(Math.random() * 15) + 's';
+            document.body.appendChild(floating);
+        }
+
+        for (let i = 0; i < 5; i++) {
+            createFloatingElement();
+        }
+
+        <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+            window.addEventListener('load', () => {
+            const modal = document.getElementById('successModal');
+            const successMessageText = document.getElementById('successMessage');
+            successMessageText.innerText = "<%= successMessage %>";
+            modal.classList.add('fadeIn');  
+            modal.style.display = "flex";
+
+            const closeBtn = document.getElementById('closeModalBtn');
+            closeBtn.addEventListener('click', () => {
+            modal.classList.remove('fadeIn');
+            modal.style.display = "none";
+            });
+        });
+        <% } %>
+    </script>
+</body>
+</html> 
