@@ -1,5 +1,3 @@
-Excellent! Here’s a professional and polished example for your **README.md** that you can use in your GitHub repository.
-
 ---
 
 # NASCON Project
