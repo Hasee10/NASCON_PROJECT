@@ -86,8 +86,8 @@ http://localhost:3000
 
 If you have any questions or suggestions, feel free to reach me at:
 
-* **LinkedIn:** [your-profile](https://www.linkedin.com/in/your-profile)
-* **Github:** [your-username](https://github.com/your-username)
+* **LinkedIn:** (www.linkedin.com/in/haseeb-arshad-09881b347)
+* **Github:** (https://github.com/Hasee10)
 
 ---
 
